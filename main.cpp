@@ -68,6 +68,8 @@ public:
     void init_map(void);
     void select_tile(int sx, int sy);
 
+   Application() : frame(0), m_drag(false), m_scroll_x(0), m_scroll_y(0) {}
+
 private:
     void paint(void);
     void update(double delta);
@@ -136,7 +138,6 @@ void Application::init_map(void) {
 void Application::paint(void) {
     ALLEGRO_BITMAP *bm_hex;
     int y, height;
-    int i = frame % MAXTERRAINS;
     height = 800 / 48;
     al_clear_to_color(al_map_rgb(frame % 256, (frame >> 2) % 256, (frame >> 4) % 256));
     al_draw_text(font, al_map_rgb(255, 255, 255), 400, 300, ALLEGRO_ALIGN_CENTER, "Welcome to Eressea!");
