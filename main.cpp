@@ -190,6 +190,10 @@ int Application::run(void) {
     al_install_mouse();
 
     display = al_create_display(800, 600);
+    if (!display) {
+        fputs("could not open DISPLAY\n", stderr);
+        exit(-1);
+    }
     al_set_window_title(display, "Eressea Allegro Client");
     font = al_create_builtin_font();
 
