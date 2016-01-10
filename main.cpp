@@ -59,6 +59,7 @@ private:
 
 class Application {
 public:
+    Application() : m_drag(false), m_scroll_x(0), m_scroll_y(0) {}
     int run(void);
     void read_report(const char *filename);
     void init_map(void);
