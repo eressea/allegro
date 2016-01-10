@@ -128,7 +128,6 @@ void Application::init_map(void) {
 
 void Application::paint(void) {
     int y, height;
-    int i = frame % MAXTERRAINS;
     height = 800 / 48;
     for (y = 0; y != height; ++y) {
         int yof = m_scroll_y / 48 + 2; // TODO: yes, but why?

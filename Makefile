@@ -1,16 +1,16 @@
-CC ?= gcc
-CPP ?= g++
+CC = gcc
+CPP = g++
 LIBS+=`pkg-config --libs allegro_font-5.0 allegro_image-5.0`
 CFLAGS+=-g -Wall -Werror `pkg-config --cflags allegro-5.0`
 CPPFLAGS+=-std=c++11 $(CFLAGS)
 
-allegro: main.o canvas.o
+allegro: main.cpp.o canvas.c.o
 	$(CPP) $(LIBS) -o $@ $^
 
-%.o: %.cpp
-	$(CPP) $(CFLAGS) -o $@ -c $^
+%.cpp.o: %.cpp
+	$(CPP) $(CPPFLAGS) -o $@ -c $^
 
-%.o: %.c
+%.c.o: %.c
 	$(CC) $(CFLAGS) -o $@ -c $^
 
 clean:
