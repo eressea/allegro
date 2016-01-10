@@ -1,15 +1,11 @@
-#define _CRT_SECURE_NO_WARNINGS
 #include <allegro5/allegro.h>
-#include <allegro5/allegro_font.h>
-#include <allegro5/allegro_image.h>
-
+#include "canvas.h"
 #include <cstring>
 #include <cstdio>
 #include <map>
 #include <string>
 #include <vector>
 
-#define MAXTERRAINS 8
 struct terrain_data {
     const char * name;
     const char * crtoken;
@@ -68,8 +64,6 @@ public:
     void init_map(void);
     void select_tile(int sx, int sy);
 
-   Application() : frame(0), m_drag(false), m_scroll_x(0), m_scroll_y(0) {}
-
 private:
     void paint(void);
     void update(double delta);
@@ -78,9 +72,6 @@ private:
     int frame;
     bool m_drag;
     int m_scroll_x, m_scroll_y;
-
-    ALLEGRO_FONT* font;
-    ALLEGRO_BITMAP *bm_terrains[MAXTERRAINS];
 };
 
 void Application::read_report(const char * filename) {
@@ -136,11 +127,9 @@ void Application::init_map(void) {
 }
 
 void Application::paint(void) {
-    ALLEGRO_BITMAP *bm_hex;
     int y, height;
+    int i = frame % MAXTERRAINS;
     height = 800 / 48;
-    al_clear_to_color(al_map_rgb(frame % 256, (frame >> 2) % 256, (frame >> 4) % 256));
-    al_draw_text(font, al_map_rgb(255, 255, 255), 400, 300, ALLEGRO_ALIGN_CENTER, "Welcome to Eressea!");
     for (y = 0; y != height; ++y) {
         int yof = m_scroll_y / 48 + 2; // TODO: yes, but why?
         const HexMap::row_type * tiles = hmap.getTiles(yof - y);
@@ -150,13 +139,12 @@ void Application::paint(void) {
                 sx = m_scroll_x + 64 * sx + 32 * sy;
                 sy = m_scroll_y - sy * 48;
                 if (sx < 800 && sx > -80 && sy < 600 && sy > -80) {
-                    bm_hex = bm_terrains[tile->terrain];
-                    al_draw_bitmap(bm_hex, sx, sy, 0);
+                    canvas_draw_hex(sx, sy, tile->terrain);
                 }
             }
         }
     }
-    al_flip_display();
+    canvas_flip();
 }
 
 void Application::update(double delta) {
@@ -178,24 +166,11 @@ void Application::select_tile(int sx, int sy) {
 }
 
 int Application::run(void) {
-    ALLEGRO_DISPLAY* display;
     ALLEGRO_TIMER* timer;
     ALLEGRO_EVENT_QUEUE *queue;
     int refresh_rate, i;
     double delta;
-    al_init();
-    al_init_font_addon();
-    al_init_image_addon();
-    al_install_keyboard();
-    al_install_mouse();
-
-    display = al_create_display(800, 600);
-    if (!display) {
-        fputs("could not open DISPLAY\n", stderr);
-        exit(-1);
-    }
-    al_set_window_title(display, "Eressea Allegro Client");
-    font = al_create_builtin_font();
+    canvas_init();
 
     for (i = 0; i != MAXTERRAINS; ++i) {
         char filename[64];
@@ -203,13 +178,11 @@ int Application::run(void) {
         strncpy(filename, "res/", size);
         strncat(filename, terrains[i].name, size);
         strncat(filename, ".png", size);
-        bm_terrains[i] = al_load_bitmap(filename);
-        if (!bm_terrains[i]) {
+        if (canvas_load_bmp(i, filename)!=0) {
             fprintf(stderr, "could not load %s\n", filename);
         }
     }
-    refresh_rate = al_get_display_refresh_rate(display);
-    if (refresh_rate == 0) refresh_rate = 30;
+    refresh_rate = canvas_get_refresh_rate();
     delta = 1.0 / refresh_rate;
     timer = al_create_timer(delta);
     al_start_timer(timer);
